@@ -1,49 +1,53 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, Component } from 'react';
 import Cards from '../components/Cards';
 import SearchBox from '../components/SearchBox';
 import Scroll from '../components/Scroll';
 import ErrorBoundry from '../components/ErrorBoundry';
-import { setSearchField } from '../actions';
+import { setSearchField, requestRobots } from '../actions';
 import { connect } from 'react-redux';
-
+import Header from '../components/Header';
 import './App.css';
 
-const App = props => {
-    const [robotsState, setRobotsState] = useState([]);
+class App extends Component {
+    componentDidMount() {
+        this.props.onRequestRobotsHandler();
+    };
 
-    useEffect(() => {
-        fetch('https://jsonplaceholder.typicode.com/users')
-            .then(response => response.json())
-            .then(users => setRobotsState(users));
-    }, [setRobotsState]);
-
-    const robotsFiltered = robotsState.filter(robot =>
-        robot.name.toLocaleLowerCase().includes(props.searchField.toLocaleLowerCase()));
-
-    return !robotsState.length
-        ? <h1>Loading...</h1>
-        : (
+    render() {
+        console.log('app')
+        const filteredRobots = this.props.robots.filter(robot =>
+            robot.name.toLocaleLowerCase().includes(this.props.searchField.toLocaleLowerCase()));
+        return (
             <div className='tc'>
-                <h1 className='f2'>RoboFriends</h1>
-                <SearchBox searchChange={(e) => props.onSearchChangeHandler(e)} />
+                <Header />
+                <SearchBox searchChange={this.props.onSearchChange} />
                 <Scroll>
-                    <ErrorBoundry>
-                        <Cards robots={robotsFiltered} /> 
-                    </ErrorBoundry>
+                    {this.props.isPending ? <h1>Loading</h1> :
+                        <ErrorBoundry>
+                            <Cards robots={filteredRobots} />
+                        </ErrorBoundry>
+                    }
                 </Scroll>
             </div>
         );
+    }
 }
 
 const mapStateToProps = (state) => {
     return {
-        searchField: state.searchField,
+        searchField: state.searchRobots.searchField,
+        robots: state.requestRobots.robots,
+        isPending: state.requestRobots.isPending,
+        error: state.requestRobots.error
     }
 }
 
+
 const mapDispatchToProps = (dispatch) => {
     return {
-        onSearchChangeHandler: (event) => dispatch(setSearchField(event.target.value))
+        onSearchChangeHandler: (event) => dispatch(setSearchField(event.target.value)),
+        onRequestRobotsHandler: () => requestRobots(dispatch)
+        //      onRequestRobotsHandler: () => dispatch(requestRobots())
     }
 }
 
