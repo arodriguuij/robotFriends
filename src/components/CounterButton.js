@@ -1,18 +1,32 @@
-import React, { useState } from 'react';
+import React, { Component } from 'react';
 
-const CounterButton = (props) => {
-        const [counterButtonState, setCounterButtonState] = useState(0);
-
-        const updateCount = () => {
-            setCounterButtonState(previousState => previousState + 1);
+class CounterButton extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            count: 0
         }
+    }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        return this.state.count !== nextState.count ? true : false;
+    }
+
+    updateCount() {
+        this.setState(previousState => ({ count: previousState.count + 1 }));
+    }
+
+    render() {
         return (
-            <button color={props.color} onClick={updateCount} >
-                Count: {counterButtonState}
+            <button
+                id='counter'
+                color={this.props.color}
+                onClick={() => this.updateCount()} >
+                Count: {this.state.count}
             </button>
         )
     }
+}
 
 
-export default React.memo(CounterButton);
+export default CounterButton;

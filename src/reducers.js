@@ -7,12 +7,11 @@ import {
 
 const initialStateSearch = {
   searchField: ''
-
 }
 const initialStateRequest = {
   robots: [],
   isPending: false,
-  error: ''
+  error:''
 }
 
 export const searchRobots = (state = initialStateSearch, action = {}) => {
